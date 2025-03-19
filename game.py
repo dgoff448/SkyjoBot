@@ -42,6 +42,7 @@ class Game:
         curPlayerid = self.curPlayer.id + 1
         if curPlayerid > self.player_count - 1:
             self.curPlayer = self.players[0]
+            return
         self.curPlayer = self.players[curPlayerid]
 
     def getScores(self) -> list[int]:

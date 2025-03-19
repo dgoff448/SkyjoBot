@@ -1,6 +1,6 @@
 from player import Player
-# from game import Game
 from deck import Deck
+import random
 
 """
 Notes:
@@ -19,6 +19,8 @@ class Bot(Player):
         discardCard = deck.discard_card
         if self.shouldUseDiscard(discardCard):
             col, row = self.pickCardToSwap(discardCard)
+            print(f"Discard Card to use: {discardCard}")
+            print(f"col:{col} row:{row}")
             oldCard = self.swapCard(discardCard, col, row)
             deck.discard(oldCard)
             print(f"Bot {self.id} decided to swap the discard card ({discardCard}) with his {oldCard}.")
@@ -52,9 +54,10 @@ class Bot(Player):
     def turnCard(self):
         # Turns the first found unseen card.  TODO: Could be smarter
         for col in range(0, len(self.hand_seen)):
-            for row in range(0, len(col)):
+            for row in range(0, col):
                 if self.hand_seen[col][row] == 13:
                     self.revealCard(col, row)
+                    return
 
     def currentSum(self) -> int:
         total = 0
@@ -77,19 +80,39 @@ class Bot(Player):
 
     def getMaxCard(self, card:int) -> tuple[int, int]:
         maxCard = -2
-        maxCoords = (13, 13)
+        maxCoords = (0, 0)
         for col in range(0, len(self.hand_seen)):
-            for row in range(0, len(col)):
+            for row in range(0, col):
                 seen_card = self.hand_seen[col][row]
                 if seen_card > maxCard and seen_card != 13:
                     maxCard = seen_card
                     maxCoords = (col, row)
         return maxCoords
     
+    def isAllUnseen(self) -> bool:
+        for col in self.hand_seen:
+            for row in col:
+                if row != 13:
+                    return False
+        return True
+    
+    def firstUnseen(self) -> tuple[int, int]:
+        for i in range(0, len(self.hand_seen)):
+            for j in range(0, len(self.hand_seen[i])):
+                if self.hand_seen[i][j] == 13:
+                    return (i, j)
+
     def pickCardToSwap(self, cardToUse:int) -> tuple[int, int]:
         col, row = self.checkColumns(cardToUse)
         if col != 13 and row != 13:
             return (col, row)
+        
+        if self.isAllUnseen():
+            return (0, 0)
+        
+        r = random.randint(0, 1)        # TODO: Could be smarter
+        if r == 1:
+            return self.firstUnseen()
 
         return self.getMaxCard(cardToUse)
 

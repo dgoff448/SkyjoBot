@@ -42,7 +42,6 @@ def humanTurn(game:Game):
         game.players[0].swapCard(card, row, col)
 
     game.players[0].discard_column()    # Checks to see if there is a matching column to discard.
-    print(game.players[0])
 
 
 # Main Start ************************************************************************************************
