@@ -1,5 +1,5 @@
 import game as Game
-
+from player import Player
 
 def humanTurn(game:Game):
     print(f"Discard card: {game.deck.discard_card}")
@@ -64,13 +64,35 @@ while(True):
 
     
 
-    while not game.isGameOver:         # TODO: check if game is over
+    while not game.evalRound:         # check if eval round has started
         if int(game.curPlayer) == 0: # While the player is not a bot
             humanTurn(game)
-            game.nextPlayer()
         else:
             game.curPlayer.makeMove()
-            game.nextPlayer()
+        game.nextPlayer()
+
+    while game.curPlayer != game.evalPlayer:  # Checks if everyone has had their last turn
+        if int(game.curPlayer) == 0:
+            humanTurn(game)
+        else:
+            game.curPlayer.makeMove()
+        game.curPlayer.setScore()
+        game.nextPlayer()
+
+    # Display scores and show winner.
+    minScore = 145  # Highest possible score would be 12x12 (if there were even 12-12s)
+    winningPlayer = Player.Player(-1)
+    scores = game.getScores()
+    for i in range(0, len(scores)):
+        print(f"Player {i}: {scores[i]}")
+        if scores[i] < minScore:
+            minScore = scores[i]
+            winningPlayer = game.players[i]
+        print("")
+    print(f"Player {winningPlayer.id} is the Winner!\n")
+    
+    
+    
 
     inp = input("Do you want to play again? [Y/n] ")
     while inp not in ['y', 'Y', 'n', 'N', '']:

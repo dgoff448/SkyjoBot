@@ -3,11 +3,11 @@ import player as Player
 
 class Game:
     def __init__(self, player_count):
-        self.isGameOver = False
         self.player_count = player_count
         self.players = []
         self.deck = Deck.Deck()
         self.curPlayer = Player.Player(-1)      # Later set to players[0]
+        self.isGameOver = False
         self.evalRound = False
         self.evalPlayer:Player = Player.Player(-1)    # Player that started eval round
 
@@ -38,3 +38,9 @@ class Game:
         self.curPlayer += 1
         if self.curPlayer > self.player_count - 1:
             self.curPlayer = 0
+
+    def getScores(self) -> list[int]:
+        scores = []
+        for player in self.players:
+            scores.append(player.score)
+        return scores
