@@ -2,7 +2,7 @@ import game as Game
 
 
 def humanTurn(game:Game):
-    print(f"Discard card: {game.getDeck().getDiscardCard()}")
+    print(f"Discard card: {game.deck.discard_card}")
     print(game.players[0])
     inp = input("Do you want to draw a [n]ew card or draw from the [d]iscard pile? ")
     while inp not in ['n', 'N', 'd', 'D']:
@@ -10,7 +10,7 @@ def humanTurn(game:Game):
 
     # If player wants a new card from deck.
     if inp in ['n', 'N']:
-        card = game.getDeck().draw()
+        card = game.deck.draw()
         print(f"\nYour new card is {card}.")
         inp = input("Do you want to [s]wap the new card with one of yours or [d]iscard the new card and flip your own? ")
         while inp not in ['s', 'S', 'd', 'D']:
@@ -22,7 +22,7 @@ def humanTurn(game:Game):
             # TODO: needs error handling
             row, col = map(int, coords.split("."))
             oldCard = game.players[0].getCard(row, col)
-            game.getDeck().setDiscardCard(oldCard)
+            game.deck.setDiscardCard(oldCard)
             game.players[0].swapCard(card, row, col)
 
         # If player wants to discard new card and reveal hidden card.
@@ -33,17 +33,16 @@ def humanTurn(game:Game):
             game.players[0].revealCard(row, col)
     # If player wants to use previously discarded card and swap out with existing card
     else:
-        card = game.getDeck().getDiscardCard()
+        card = game.deck.discard_card
         coords = input(f"Type the coordinates of the card to replace ([row].[col]). ")
         # TODO: needs error handling
         row, col = map(int, coords.split("."))
         oldCard = game.players[0].getCard(row, col)
-        game.getDeck().setDiscardCard(oldCard)
+        game.deck.setDiscardCard(oldCard)
         game.players[0].swapCard(card, row, col)
 
     game.players[0].discard_column()    # Checks to see if there is a matching column to discard.
     print(game.players[0])
-
 
 
 # Main Start ************************************************************************************************
@@ -66,11 +65,11 @@ while(True):
     
 
     while not game.isGameOver:         # TODO: check if game is over
-        if int(game.getCurPlayer()) == 0: # While the player is not a bot
+        if int(game.curPlayer) == 0: # While the player is not a bot
             humanTurn(game)
             game.nextPlayer()
         else:
-            game.getCurPlayer().makeMove()
+            game.curPlayer.makeMove()
             game.nextPlayer()
 
     inp = input("Do you want to play again? [Y/n] ")

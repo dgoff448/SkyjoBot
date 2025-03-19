@@ -36,10 +36,7 @@ class Player:
     
     def getCard(self, row:int, col:int) -> int:
         return self.hand_actual[row][col]
-    
-    def getID(self) -> int:
-        return self.id
-    
+
     def getUnseenCards(self) -> int:
         unseen = 0
         for col in self.hand_seen:

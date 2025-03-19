@@ -20,6 +20,3 @@ class Deck:
     
     def discard(self, card:int):
         self.discard_card = card
-    
-    def getDiscardCard(self) -> int:
-        return self.discard_card

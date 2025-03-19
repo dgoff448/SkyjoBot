@@ -15,21 +15,21 @@ class Bot(Player):
 
     def makeMove(self, game:Game):
         # Should the bot use the card on the discard pile?
-        discardCard = game.getDeck().getDiscardCard()
+        discardCard = game.deck.discard_card
         if self.shouldUseDiscard(discardCard):
             col, row = self.pickCardToSwap(discardCard)
             oldCard = self.swapCard(discardCard, col, row)
-            game.getDeck().discard(oldCard)
+            game.deck.discard(oldCard)
             return
 
         # Should the bot use the card drawn from deck?
-        newCard = game.getDeck().draw()
+        newCard = game.deck.draw()
         if self.shouldUseNew(newCard):
             col, row = self.pickCardToSwap(newCard)
             oldCard = self.swapCard(newCard, col, row)
-            game.getDeck().discard(oldCard)
+            game.deck.discard(oldCard)
             return
-        game.getDeck().discard(newCard)
+        game.deck.discard(newCard)
 
         # If there is 1 unseen card left
         if self.getUnseenCards == 1:

@@ -38,9 +38,3 @@ class Game:
         self.curPlayer += 1
         if self.curPlayer > self.player_count - 1:
             self.curPlayer = 0
-    
-    def getCurPlayer(self) -> Player:
-        return self.curPlayer
-
-    def getDeck(self) -> Deck:
-        return self.deck
