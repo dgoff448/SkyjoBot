@@ -64,10 +64,11 @@ class Bot(Player):
         return total
 
     def checkColumns(self, card:int) -> tuple[int, int]:
-        for col in range(0, len(self.hand_seen)):
+        for i in range(0, len(self.hand_seen)):
+            col = self.hand_seen[i]
             matches = 0
             for row in range(0, len(col)):
-                seen_card = self.hand_seen[col][row]
+                seen_card = self.hand_seen[i][row]
                 if seen_card == card:
                     matches += 1
             if matches == 2:
