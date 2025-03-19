@@ -1,5 +1,6 @@
 from player import Player
-from game import Game
+# from game import Game
+from deck import Deck
 
 """
 Notes:
@@ -13,35 +14,40 @@ class Bot(Player):
     def __init__(self, id:int):
         super().__init__(id)
 
-    def makeMove(self, game:Game):
+    def makeMove(self, deck:Deck) -> bool:      # Returns if eval round starts
         # Should the bot use the card on the discard pile?
-        discardCard = game.deck.discard_card
+        discardCard = deck.discard_card
         if self.shouldUseDiscard(discardCard):
             col, row = self.pickCardToSwap(discardCard)
             oldCard = self.swapCard(discardCard, col, row)
-            game.deck.discard(oldCard)
-            return
+            deck.discard(oldCard)
+            print(f"Bot {self.id} decided to swap the discard card ({discardCard}) with his {oldCard}.")
+            return False
 
         # Should the bot use the card drawn from deck?
-        newCard = game.deck.draw()
+        newCard = deck.draw()
         if self.shouldUseNew(newCard):
             col, row = self.pickCardToSwap(newCard)
             oldCard = self.swapCard(newCard, col, row)
-            game.deck.discard(oldCard)
-            return
-        game.deck.discard(newCard)
+            deck.discard(oldCard)
+            print(f"Bot {self.id} decided to swap the New Card ({newCard}) with his {oldCard}.")
+            return False
+        deck.discard(newCard)
+        print(f"Bot {self.id} decided to discard the new card ({newCard}).")
 
         # If there is 1 unseen card left
         if self.getUnseenCards == 1:
             # start eval round if current sum is < 4  TODO: Could be smarter
             if self.currentSum < 4:
                 self.turnCard()
-                game.startEvalRound(self)
-            return
+                print(f"Bot {self.id} decided to start the Evaluation Round.")
+                return True
+            return False
         
         # Turn Card over
         self.turnCard()
-        return
+        print(f"Bot {self.id} decided to turn over a card.")
+        return False
     
     def turnCard(self):
         # Turns the first found unseen card.  TODO: Could be smarter

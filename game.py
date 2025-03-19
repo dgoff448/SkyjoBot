@@ -1,5 +1,6 @@
 import deck as Deck
 import player as Player
+import bot as Bot
 
 class Game:
     def __init__(self, player_count):
@@ -12,10 +13,13 @@ class Game:
         self.evalPlayer:Player = Player.Player(-1)    # Player that started eval round
 
         # Initializing Players
-        for i in range(0, player_count):
-            player = Player.Player(i)
-            self.makeHand(player)
-            self.players.append(player)
+        player = Player.Player(0)
+        self.makeHand(player)
+        self.players.append(player)
+        for i in range(1, player_count):
+            bot = Bot.Bot(i)
+            self.makeHand(bot)
+            self.players.append(bot)
         self.curPlayer = self.players[0]
 
         # Prime Discard Pile
@@ -35,9 +39,10 @@ class Game:
         player.setHand(hand)
 
     def nextPlayer(self):
-        self.curPlayer += 1
-        if self.curPlayer > self.player_count - 1:
-            self.curPlayer = 0
+        curPlayerid = self.curPlayer.id + 1
+        if curPlayerid > self.player_count - 1:
+            self.curPlayer = self.players[0]
+        self.curPlayer = self.players[curPlayerid]
 
     def getScores(self) -> list[int]:
         scores = []

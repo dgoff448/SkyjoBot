@@ -22,7 +22,7 @@ def humanTurn(game:Game):
             # TODO: needs error handling
             row, col = map(int, coords.split("."))
             oldCard = game.players[0].getCard(row, col)
-            game.deck.setDiscardCard(oldCard)
+            game.deck.discard(oldCard)
             game.players[0].swapCard(card, row, col)
 
         # If player wants to discard new card and reveal hidden card.
@@ -38,7 +38,7 @@ def humanTurn(game:Game):
         # TODO: needs error handling
         row, col = map(int, coords.split("."))
         oldCard = game.players[0].getCard(row, col)
-        game.deck.setDiscardCard(oldCard)
+        game.deck.discard(oldCard)
         game.players[0].swapCard(card, row, col)
 
     game.players[0].discard_column()    # Checks to see if there is a matching column to discard.
@@ -63,24 +63,28 @@ while(True):
     game = Game.Game(int(player_count))
 
     
-
+    # Regular Rounds
     while not game.evalRound:         # check if eval round has started
-        if int(game.curPlayer) == 0: # While the player is not a bot
+        if int(game.curPlayer.id) == 0: # While the player is not a bot
             humanTurn(game)
         else:
-            game.curPlayer.makeMove()
+            if game.curPlayer.makeMove(game.deck):
+                game.startEvalRound(game.curPlayer)
+            print(f"Bot {game.curPlayer.id}'s hand:\n{game.curPlayer}\n")
         game.nextPlayer()
 
+    # Evaluation Round
     while game.curPlayer != game.evalPlayer:  # Checks if everyone has had their last turn
         if int(game.curPlayer) == 0:
             humanTurn(game)
         else:
-            game.curPlayer.makeMove()
+            game.curPlayer.makeMove(game.deck)
+            print(f"Bot {game.curPlayer.id}'s hand:\n{game.curPlayer}\n")
         game.curPlayer.setScore()
         game.nextPlayer()
 
     # Display scores and show winner.
-    minScore = 145  # Highest possible score would be 12x12 (if there were even 12-12s)
+    minScore = 145  # Highest possible score would be 144 (12x12) (if there were even 12-12s)
     winningPlayer = Player.Player(-1)
     scores = game.getScores()
     for i in range(0, len(scores)):
