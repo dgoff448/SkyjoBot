@@ -10,14 +10,14 @@ class Player:
     def setHand(self, hand:list[list[int]]):
         self.hand_actual = hand
 
-    def swapCard(self, card:int, row:int, col:int) -> int:
-        oldCard = self.hand_actual[row][col]
-        self.hand_actual[row][col] = card
-        self.revealCard(row, col)
+    def swapCard(self, card:int, col:int, row:int) -> int:
+        oldCard = self.hand_actual[col][row]
+        self.hand_actual[col][row] = card
+        self.revealCard(col, row)
         return oldCard
 
-    def revealCard(self, row:int, col:int):
-        self.hand_seen[row][col] = self.hand_actual[row][col]
+    def revealCard(self, col:int, row:int):
+        self.hand_seen[col][row] = self.hand_actual[col][row]
 
     def discard_column(self):
         for col in self.hand_actual:
@@ -30,12 +30,9 @@ class Player:
         for col in self.hand_actual:
             for card in col:
                 self.score += card
-
-    def getScore(self) -> int:
-        return self.score
     
-    def getCard(self, row:int, col:int) -> int:
-        return self.hand_actual[row][col]
+    def getCard(self, col:int, row:int) -> int:
+        return self.hand_actual[col][row]
 
     def getUnseenCards(self) -> int:
         unseen = 0
