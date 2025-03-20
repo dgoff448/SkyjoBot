@@ -13,125 +13,75 @@ Notes:
 class Bot(Player):
     def __init__(self, id:int):
         super().__init__(id)
+        order_to_select = [ [3,0], [2,0], [1,0], 
+                            [3,1], [2,1], [1,1],
+                            [3,2], [2,2], [1,2],
+                            [0,2], [0,1]]
+        
+    def makeMove(self, deck:Deck) -> bool: # Returns True if eveal round starts
+        discardValue = deck.discard_card
+        unseenAmt = self.getUnseenAmt()
 
-    def makeMove(self, deck:Deck) -> bool:      # Returns if eval round starts
-        # Should the bot use the card on the discard pile?
-        discardCard = deck.discard_card
-        if self.shouldUseDiscard(discardCard):
-            col, row = self.pickCardToSwap(discardCard)
-            print(f"Discard Card to use: {discardCard}")
-            print(f"col:{col} row:{row}")
-            oldCard = self.swapCard(discardCard, col, row)
+        # If there is a column that can be cancelled out
+        if (col := self.isColumnCancellable(discardValue)) != -1:
+            self.cancelColumn(deck, col)      # Cancel out the column
+            if col == len(self.hand_seen):    # Fixes ord_to_select if column was not on end
+                for coord in self.order_to_select:
+                    if coord[0] > col:
+                        coord[0] -= 1
+            return False    # Do not start eval round
+
+        # If there is one unseen card left and discard would make score 0 or less
+        elif (unseenAmt == 1) and ((self.getSeenScore() + discardValue) < 1):
+            oldCard = self.swapCard(discardValue, 0, 0)   # swap discard with (0,0)
             deck.discard(oldCard)
-            print(f"Bot {self.id} decided to swap the discard card ({discardCard}) with his {oldCard}.")
-            return False
+            return True     # start eval round
 
-        # Should the bot use the card drawn from deck?
+        # If there is at most 1 card revealed and discard is 4 or less
+        elif (unseenAmt > 10) and (discardValue < 5):
+            col, row = self.order_to_select.pop(0)      
+            oldCard = self.swapCard(discardValue)                 # Swap discard with first position available in "ord_to_select"
+            deck.discard(oldCard)
+            return False    # Do not start eval round
+        
+        # If discard is a decent valued card
+        elif discardValue < 5:
+            col, row = self.order_to_select.pop(0)
+            oldCard = self.swapCard(discardValue, col, row)   # Swap discard with first position available in "ord_to_select"
+            deck.discard(oldCard)
+            return False    # Do not start eval round
+        
+
         newCard = deck.draw()
-        if self.shouldUseNew(newCard):
-            col, row = self.pickCardToSwap(newCard)
-            oldCard = self.swapCard(newCard, col, row)
+        # If there is a column that can be cancelled out
+        if (col := self.isColumnCancellable(newCard)) != -1:
+            self.cancelColumn(deck, col)      # Cancel out the column
+            if col == len(self.hand_seen):    # Fixes ord_to_select if column was not on end
+                for coord in self.order_to_select:
+                    if coord[0] > col:
+                        coord[0] -= 1
+            return False    # Do not start eval round
+        
+        # If there is one unseen card left and discard would make score 0 or less
+        elif (unseenAmt == 1) and ((self.getSeenScore() + newCard) < 1):
+            oldCard = self.swapCard(newCard, 0, 0)   # swap discard with (0,0)
             deck.discard(oldCard)
-            print(f"Bot {self.id} decided to swap the New Card ({newCard}) with his {oldCard}.")
-            return False
-        deck.discard(newCard)
-        print(f"Bot {self.id} decided to discard the new card ({newCard}).")
+            return True     # start eval round
 
-        # If there is 1 unseen card left
-        if self.getUnseenCards == 1:
-            # start eval round if current sum is < 4  TODO: Could be smarter
-            if self.currentSum < 4:
-                self.turnCard()
-                print(f"Bot {self.id} decided to start the Evaluation Round.")
-                return True
-            return False
+        # If discard is a decent valued card
+        elif newCard < 5:
+            col, row = self.order_to_select.pop(0)      
+            oldCard = self.swapCard(newCard)                 # Swap discard with first position available in "ord_to_select"
+            deck.discard(oldCard)
+            return False    # Do not start eval round
         
-        # Turn Card over
-        self.turnCard()
-        print(f"Bot {self.id} decided to turn over a card.")
-        return False
-    
-    def turnCard(self):
-        # Turns the first found unseen card.  TODO: Could be smarter
-        for col in range(0, len(self.hand_seen)):
-            for row in range(0, col):
-                if self.hand_seen[col][row] == 13:
-                    self.revealCard(col, row)
-                    return
-
-    def currentSum(self) -> int:
-        total = 0
-        for col in self.hand_seen:
-            for card in col:
-                total += card
-        return total
-
-    def checkColumns(self, card:int) -> tuple[int, int]:
-        for i in range(0, len(self.hand_seen)):
-            col = self.hand_seen[i]
-            matches = 0
-            for row in range(0, len(col)):
-                seen_card = self.hand_seen[i][row]
-                if seen_card == card:
-                    matches += 1
-            if matches == 2:
-                return (col, row)
-        return (13, 13)
-
-    def getMaxCard(self, card:int) -> tuple[int, int]:
-        maxCard = -2
-        maxCoords = (0, 0)
-        for col in range(0, len(self.hand_seen)):
-            for row in range(0, col):
-                seen_card = self.hand_seen[col][row]
-                if seen_card > maxCard and seen_card != 13:
-                    maxCard = seen_card
-                    maxCoords = (col, row)
-        return maxCoords
-    
-    def isAllUnseen(self) -> bool:
-        for col in self.hand_seen:
-            for row in col:
-                if row != 13:
-                    return False
-        return True
-    
-    def firstUnseen(self) -> tuple[int, int]:
-        for i in range(0, len(self.hand_seen)):
-            for j in range(0, len(self.hand_seen[i])):
-                if self.hand_seen[i][j] == 13:
-                    return (i, j)
-
-    def pickCardToSwap(self, cardToUse:int) -> tuple[int, int]:
-        col, row = self.checkColumns(cardToUse)
-        if col != 13 and row != 13:
-            return (col, row)
+        # If not on last unseen card.
+        elif unseenAmt > 1:
+            deck.discard(newCard)
+            col, row = self.order_to_select.pop(0)
+            self.revealCard(col, row)
+            return False    # Do not start eval round
         
-        if self.isAllUnseen():
-            return (0, 0)
-        
-        r = random.randint(0, 1)        # TODO: Could be smarter
-        if r == 1:
-            return self.firstUnseen()
-
-        return self.getMaxCard(cardToUse)
-
-    def shouldUseDiscard(self, discardCard:int) -> bool:
-        col, row = self.checkColumns(discardCard)
-        if col != 13 and row != 13:     # is there a column that can be completed?
-            return True
-        elif discardCard < 7:           # is the card below 7
-            return True
         else:
-            return False
-
-    def shouldUseNew(self, newCard:int) -> bool:
-        return self.shouldUseDiscard(newCard)
-    
-    def getUnseenAmt(self) -> int:
-        counter = 0
-        for col in self.hand_seen:
-            for card in col:
-                if card == 13:
-                    counter += 1
-        return counter
+            deck.discard(newCard)
+            return False    # Do not start eval round
