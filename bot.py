@@ -127,3 +127,11 @@ class Bot(Player):
 
     def shouldUseNew(self, newCard:int) -> bool:
         return self.shouldUseDiscard(newCard)
+    
+    def getUnseenAmt(self) -> int:
+        counter = 0
+        for col in self.hand_seen:
+            for card in col:
+                if card == 13:
+                    counter += 1
+        return counter

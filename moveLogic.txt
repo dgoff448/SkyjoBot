@@ -1,0 +1,38 @@
+Bot Move Logic Priority
+
+order_to_select =  {(3,0), (2,0), (1,0), 
+                    (3,1), (2,1), (1,1),
+                    (3,2), (2,2), (1,2),
+                    (0,2), (0,1)}
+
+* If (unseenAmt == 1) and ((curScore + discardValue) < 1) then
+    * swap discard with (0,0)
+    * start eval round
+
+* else if (unseenAmt > 10) and (discardValue < 5) then
+    * swap discard with order_to_select.pop()
+
+* else if isColumnCancel(discardValue) then 
+    * cancelColumn(discard)
+
+* else if discardValue < 5 then
+    * swap discard with order_to_select.pop()
+
+* else if isColumnCancel(newCardValue) then
+    * cancelColumn(discard)
+
+* else if (unseenAmt == 1) and ((curScore + newCard) < 1) then
+    * swap newCard with (0,0)
+    * start eval round
+
+* else if newCardValue < 5 then
+    * swap newCard with order_to_select.pop()
+
+* else if unseenAmt > 1 then
+    * discard newCard
+    * reveal order_to_select.pop()
+    
+* else
+    * discard newCard
+    
+* End Turn
