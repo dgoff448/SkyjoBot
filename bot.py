@@ -13,17 +13,17 @@ Notes:
 class Bot(Player):
     def __init__(self, id:int):
         super().__init__(id)
-        order_to_select = [ [3,0], [2,0], [1,0], 
-                            [3,1], [2,1], [1,1],
-                            [3,2], [2,2], [1,2],
-                            [0,2], [0,1]]
+        self.order_to_select =     [[3,0], [2,0], [1,0], 
+                                    [3,1], [2,1], [1,1],
+                                    [3,2], [2,2], [1,2],
+                                    [0,2], [0,1]]
         
     def makeMove(self, deck:Deck) -> bool: # Returns True if eveal round starts
         discardValue = deck.discard_card
         unseenAmt = self.getUnseenAmt()
 
         # If there is a column that can be cancelled out
-        if (col := self.isColumnCancellable(discardValue)) != -1:
+        if (col := self.isColumnCancellable(discardValue)) != -1 and discardValue > 0:
             self.cancelColumn(deck, col)      # Cancel out the column
             if col == len(self.hand_seen):    # Fixes ord_to_select if column was not on end
                 for coord in self.order_to_select:
@@ -54,7 +54,7 @@ class Bot(Player):
 
         newCard = deck.draw()
         # If there is a column that can be cancelled out
-        if (col := self.isColumnCancellable(newCard)) != -1:
+        if (col := self.isColumnCancellable(newCard)) != -1 and newCard > 0:
             self.cancelColumn(deck, col)      # Cancel out the column
             if col == len(self.hand_seen):    # Fixes ord_to_select if column was not on end
                 for coord in self.order_to_select:

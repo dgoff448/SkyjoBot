@@ -19,6 +19,13 @@ class Player:
     def revealCard(self, col:int, row:int):
         self.hand_seen[col][row] = self.hand_actual[col][row]
 
+    def humanColumnCancel(self):
+        for i in range(0, len(self.hand_seen)):
+            col = self.hand_seen[i]
+            if col[0] == col[1] and col[1] == col[2]:
+                self.hand_seen.pop(i)
+                return
+
     def isColumnCancellable(self, discardValue:int) -> int:
         for i in range(0, len(self.hand_seen)):
             col = self.hand_seen[i]
@@ -40,7 +47,7 @@ class Player:
             dCard = b
         self.hand_seen.pop(col)
         deck.discard(dCard)
-        
+
     def setScore(self):
         for col in self.hand_actual:
             for card in col:
